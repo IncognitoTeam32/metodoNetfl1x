@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método Netflix - Incógnito</title>
+    <style>
+        :root {
+            --primary-red: #e50914;
+            --dark-bg: #141414;
+            --card-bg: #1f1f1f;
+            --text-white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-white);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        h1 { color: var(--primary-red); }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .btn-buy { background-color: var(--primary-red); color: white; }
+        .btn-resell { background-color: #333; color: white; }
+        .btn-wa { background-color: #25D366; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #333;
+            color: white;
+        }
+
+        /* Estilo para tu imagen QR JPEG */
+        .qr-img-file {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px auto;
+            display: block;
+        }
+
+        .hidden { display: none; }
+        .discount-msg { color: #f39c12; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>MÉTODO NETFLIX 2026</h1>
+    <p>Cuentas de 1 mes a 1 año. ¡Garantizado!</p>
+    
+    <button class="btn btn-buy" onclick="openModal('modalCompra')">COMPRAR MÉTODO</button>
+    <button class="btn btn-resell" onclick="openModal('modalLogin')">REVENDER MÉTODO</button>
+</div>
+
+<div id="modalCompra" class="modal">
+    <div class="modal-content">
+        <h2>PAGO DEL MÉTODO</h2>
+        <p>Precio: <span id="mainPrice" style="font-weight: bold; color: #25D366;">S/ 25.00</span></p>
+        
+        <input type="text" id="discountInput" placeholder="¿Tienes un código de descuento?" oninput="checkDiscount()">
+        <div id="discountNotice" class="hidden discount-msg">¡TIENES TU DESCUENTO APLICADO!</div>
+
+        <div class="qr-placeholder">
+            <img src="qrpago.jpg" alt="Escanea el QR para pagar" class="qr-img-file">
+            <p><small>Acepta Yape, Plin y cualquier Banco Móvil</small></p>
+        </div>
+
+        <p>1. Escanea el QR y paga.<br>2. Envía la captura aquí:</p>
+        <button class="btn btn-wa" onclick="sendWhatsApp()">ENVIAR CAPTURA POR WHATSAPP</button>
+        <button onclick="closeModal('modalCompra')" style="color: grey; background: none; border: none; cursor: pointer;">Cerrar</button>
+    </div>
+</div>
+
+<div id="modalLogin" class="modal">
+    <div class="modal-content">
+        <h2>ACCESO REVENDEDORES</h2>
+        <input type="text" id="user" placeholder="Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <button class="btn btn-buy" onclick="login()">INGRESAR</button>
+        <p id="loginError" style="color: red;" class="hidden">Usuario o contraseña incorrectos</p>
+        <button onclick="closeModal('modalLogin')" style="color: grey; background: none; border: none; cursor: pointer;">Cerrar</button>
+    </div>
+</div>
+
+<div id="modalPanel" class="modal">
+    <div class="modal-content" style="text-align: left;">
+        <h2 style="text-align: center;">COMO REVENDER ESTE ACCESO</h2>
+        <ol>
+            <li>Tu compraste tu acceso al grupo por <b>S/ 25 soles</b>.</li>
+            <li>Obtendrás 1 descuento por cada cliente que traigas.</li>
+            <li>Usa este código para ver tu precio especial:</li>
+        </ol>
+        <div style="background: #333; padding: 10px; border: 1px dashed #fff; text-align: center; margin: 10px 0;">
+            <b>CÓDIGO: 55INCOGDEST55</b>
+        </div>
+        <p><small>* Pagas con descuento, mandas la captura y te damos el link para tu cliente. Acceso permanente.</small></p>
+        <button class="btn btn-buy" onclick="closeModal('modalPanel'); openModal('modalCompra')">IR A PAGAR CLIENTE</button>
+    </div>
+</div>
+
+<script>
+    const WA_NUMBER = "573016272206";
+
+    function openModal(id) { document.getElementById(id).style.display = "block"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+    function login() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === "Incognito@@230003@@" && p === "fe3FHS34@@") {
+            closeModal('modalLogin');
+            openModal('modalPanel');
+        } else {
+            document.getElementById('loginError').classList.remove('hidden');
+        }
+    }
+
+    function checkDiscount() {
+        const code = document.getElementById('discountInput').value;
+        const priceTag = document.getElementById('mainPrice');
+        const notice = document.getElementById('discountNotice');
+        
+        if(code === "55INCOGDEST55") {
+            priceTag.innerHTML = "S/ 10.00";
+            notice.classList.remove('hidden');
+        } else {
+            priceTag.innerHTML = "S/ 25.00";
+            notice.classList.add('hidden');
+        }
+    }
+
+    function sendWhatsApp() {
+        let message = "";
+        const isDiscount = document.getElementById('discountInput').value === "55INCOGDEST55";
+
+        if(isDiscount) {
+            message = "HOLA E HECHO EL PAGO POR EL LINK DE ACCESO REVENTA DE METODO NETFLIX. AHI TE ENVIO LA FOTO DEL PAGO.";
+        } else {
+            message = "HOLA INCOGNITO YA HE REALIZADO EL PAGO PARA EL METODO DE N3TLFIX Y AQUI ABAJO ENVIO LA CAPTURA, PORFAVOR VERIFICA MI PAGO Y ESPERO TU RESPUESTA..";
+        }
+
+        const url = `https://api.whatsapp.com/send?phone=${WA_NUMBER}&text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    }
+</script>
+
+</body>
+</html>
